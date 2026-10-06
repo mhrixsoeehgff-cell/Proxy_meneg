@@ -1,6 +1,7 @@
 # ============================================================
-#   🔥 RIXOR PROXY — FULL SMART SYSTEM v2.1
+#   🔥 RIXOR PROXY — FULL SYSTEM v2.2
 #   Smart Force Join + UID Verify + Admin + Help + Self-Ping
+#   + Admin Top Button
 # ============================================================
 
 import os, json, time, random, string, threading, secrets, csv, io
@@ -115,15 +116,12 @@ def cleaner():
 
 threading.Thread(target=cleaner, daemon=True).start()
 
-# ============================================================
-#   🔄 SELF-PING — প্রতি ১২ মিনিটে নিজেকে রিকোয়েস্ট পাঠাবে
-# ============================================================
+# ---------- Self-ping ----------
 def self_ping():
     print("🔄 Self-ping thread started (every 12 min)")
     while True:
-        time.sleep(720)   # ১২ মিনিট = ৭২০ সেকেন্ড
+        time.sleep(720)
         try:
-            # Render ঠিক করে দেয় এই env variable
             url = os.environ.get("RENDER_EXTERNAL_URL", "")
             if not url:
                 url = f"http://127.0.0.1:{PORT}"
@@ -134,7 +132,6 @@ def self_ping():
             print("⚠️ Self-ping failed:", e)
 
 threading.Thread(target=self_ping, daemon=True).start()
-# ============================================================
 
 # ---------- Admin session ----------
 ADMIN_SESSIONS = {}
@@ -272,6 +269,44 @@ font-size:13px;color:#fbbf24;text-align:center;font-weight:600;
 @keyframes pulse{{
 0%,100%{{transform:scale(1)}}
 50%{{transform:scale(1.04)}}
+}}
+
+/* ===== 👑 ADMIN TOP BUTTON ===== */
+.admin-top{{
+position:fixed;top:16px;right:16px;z-index:9999;
+display:flex;align-items:center;gap:8px;
+padding:10px 18px;
+background:rgba(15,20,35,.75);
+backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+border:1px solid rgba(0,217,255,.35);
+border-radius:30px;
+color:#fff;text-decoration:none;
+font-size:13px;font-weight:800;letter-spacing:.5px;
+box-shadow:0 8px 25px rgba(0,0,0,.5),
+           0 0 0 1px rgba(0,217,255,.15) inset;
+transition:all .3s cubic-bezier(.4,0,.2,1);
+cursor:pointer;
+}}
+.admin-top:hover{{
+transform:translateY(-2px) scale(1.05);
+background:linear-gradient(135deg,rgba(0,217,255,.25),rgba(124,58,237,.25));
+border-color:#00d9ff;
+box-shadow:0 12px 35px rgba(0,217,255,.5),
+           0 0 0 1px rgba(0,217,255,.4) inset;
+}}
+.admin-top .crown{{
+font-size:16px;
+filter:drop-shadow(0 0 8px rgba(255,215,0,.6));
+animation:crownGlow 2s infinite;
+}}
+@keyframes crownGlow{{
+0%,100%{{filter:drop-shadow(0 0 6px rgba(255,215,0,.5))}}
+50%{{filter:drop-shadow(0 0 14px rgba(255,215,0,.9))}}
+}}
+.admin-top:active{{transform:scale(.98)}}
+@media(max-width:600px){{
+.admin-top{{top:12px;right:12px;padding:8px 14px;font-size:12px}}
+.admin-top .crown{{font-size:14px}}
 }}
 
 /* ===== 🆘 HELP BUTTON ===== */
@@ -507,6 +542,13 @@ document.addEventListener('click',function(e){{
 </script>
 """
 
+ADMIN_TOP_BTN = """
+<a href="/admin" class="admin-top">
+  <span class="crown">👑</span>
+  <span>Admin</span>
+</a>
+"""
+
 def notice_html():
     if settings.get("notice"):
         return f'<div class="notice">📢 {settings["notice"]}</div>'
@@ -521,6 +563,7 @@ PAGE_JOIN = f"""<!DOCTYPE html><html lang="bn"><head>
 <title>🔐 Rixor Proxy Access</title>
 <style>{BASE_CSS}</style>
 <style>{JOIN_BTN_CSS}</style></head><body>
+{ADMIN_TOP_BTN}
 <div class="card">
 <div style="text-align:center"><span class="badge">🔐 SECURE ACCESS</span></div>
 <h2>Rixor Proxy</h2>
@@ -593,6 +636,7 @@ e=>{{if(e.key==='Enter')checkJoin()}});
 PAGE_VERIFY = f"""<!DOCTYPE html><html lang="bn"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>🎮 UID Verify</title><style>{BASE_CSS}</style></head><body>
+{ADMIN_TOP_BTN}
 <div class="card">
 <div style="text-align:center"><span class="badge">🎮 STEP 2/2</span></div>
 <h2>Free Fire UID</h2>
@@ -636,6 +680,7 @@ e=>{{if(e.key==='Enter')verify()}});
 PAGE_ACCESS = f"""<!DOCTYPE html><html lang="bn"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>✅ Access Granted</title><style>{BASE_CSS}</style></head><body>
+{ADMIN_TOP_BTN}
 <div class="card">
 <div style="text-align:center"><span class="badge">✅ ACCESS GRANTED</span></div>
 <h2 style="background:linear-gradient(135deg,#4ade80,#00d9ff);
@@ -1098,13 +1143,13 @@ def admin_clear_logs():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 3000))
     print("=" * 60)
-    print("🔥 RIXOR PROXY v2.1 — Full System + Self-Ping")
-    print(f"🌐 Port:     {port}")
-    print(f"👑 Admin:    /admin")
-    print(f"🔑 Pass:     {ADMIN_PASS}")
-    print(f"💬 Support:  @{SUPPORT_ID}")
-    print(f"📢 Channel1: {CHANNEL_1}")
-    print(f"📢 Channel2: {CHANNEL_2}")
+    print("🔥 RIXOR PROXY v2.2 — Full System")
+    print(f"🌐 Port:      {port}")
+    print(f"👑 Admin:     /admin")
+    print(f"🔑 Pass:      {ADMIN_PASS}")
+    print(f"💬 Support:   @{SUPPORT_ID}")
+    print(f"📢 Channel1:  {CHANNEL_1}")
+    print(f"📢 Channel2:  {CHANNEL_2}")
     print(f"🔄 Self-ping: every 12 min")
     print("=" * 60)
     app.run(host="0.0.0.0", port=port, debug=False)

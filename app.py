@@ -1,6 +1,6 @@
 # ============================================================
-#   🔥 RIXOR PROXY — FULL SMART SYSTEM v2.0
-#   Smart Force Join + UID Verify + Admin Panel + Help Button
+#   🔥 RIXOR PROXY — FULL SMART SYSTEM v2.1
+#   Smart Force Join + UID Verify + Admin + Help + Self-Ping
 # ============================================================
 
 import os, json, time, random, string, threading, secrets, csv, io
@@ -14,7 +14,7 @@ BOT_TOKEN   = "8727812348:AAG-3hPXAlrDP97EGStvVPUop6uHQGhf6KY"          # ← �
 CHANNEL_1   = "@rixorchate"
 CHANNEL_2   = "@rixonevergiveup"
 ADMIN_PASS  = "Rixor2.0"
-SUPPORT_ID  = "rakibz4"                   # Help button → Telegram
+SUPPORT_ID  = "rakibz4"
 DOMAIN      = "rixor.proxy.com"
 PORT        = 3000
 
@@ -70,6 +70,7 @@ def save_data():
 
 load_data()
 
+# ---------- Telegram check ----------
 _cache = {}
 def is_member(user_id, channel):
     key = (str(user_id), channel)
@@ -90,6 +91,7 @@ def is_member(user_id, channel):
         print("Member error:", e)
         return False
 
+# ---------- Utils ----------
 _hits = {}
 def rate_limited(ip, limit=20, window=60):
     now = time.time()
@@ -113,6 +115,28 @@ def cleaner():
 
 threading.Thread(target=cleaner, daemon=True).start()
 
+# ============================================================
+#   🔄 SELF-PING — প্রতি ১২ মিনিটে নিজেকে রিকোয়েস্ট পাঠাবে
+# ============================================================
+def self_ping():
+    print("🔄 Self-ping thread started (every 12 min)")
+    while True:
+        time.sleep(720)   # ১২ মিনিট = ৭২০ সেকেন্ড
+        try:
+            # Render ঠিক করে দেয় এই env variable
+            url = os.environ.get("RENDER_EXTERNAL_URL", "")
+            if not url:
+                url = f"http://127.0.0.1:{PORT}"
+            r = requests.get(url, timeout=10)
+            print(f"✅ Self-ping OK → {url} [{r.status_code}] "
+                  f"@ {datetime.now().strftime('%H:%M:%S')}")
+        except Exception as e:
+            print("⚠️ Self-ping failed:", e)
+
+threading.Thread(target=self_ping, daemon=True).start()
+# ============================================================
+
+# ---------- Admin session ----------
 ADMIN_SESSIONS = {}
 LOGIN_ATTEMPTS = {}
 ADMIN_TIMEOUT = 30 * 60
@@ -446,10 +470,6 @@ color:#fff;text-decoration:none;display:inline-block}
 .form-grid input{margin-top:0}
 @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
 """
-
-# ============================================================
-#                    🆘 HELP BUTTON SNIPPET
-# ============================================================
 
 HELP_BUTTON = f"""
 <div class="help-menu" id="helpMenu">
@@ -1076,13 +1096,18 @@ def admin_clear_logs():
 # ============================================================
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 3000))
     print("=" * 60)
-    print("🔥 RIXOR PROXY v2.0 — Full System")
-    print(f"🌐 Site:     https://{DOMAIN}")
-    print(f"👑 Admin:    https://{DOMAIN}/admin")
+    print("🔥 RIXOR PROXY v2.1 — Full System + Self-Ping")
+    print(f"🌐 Port:     {port}")
+    print(f"👑 Admin:    /admin")
     print(f"🔑 Pass:     {ADMIN_PASS}")
     print(f"💬 Support:  @{SUPPORT_ID}")
     print(f"📢 Channel1: {CHANNEL_1}")
     print(f"📢 Channel2: {CHANNEL_2}")
+    print(f"🔄 Self-ping: every 12 min")
     print("=" * 60)
-    app.run(host="0.0.0.0", port=PORT, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False)
+
+# PythonAnywhere এর জন্য
+application = app
